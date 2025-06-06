@@ -1,29 +1,49 @@
-var express = require('express');
-var router = express.Router();
-// レスポンスのデータ（ノート全件）
-const responseObjectDataAll = {
-textObject1 : {
-id: 1,
-title: 'ノート１のタイトルです',
-subTitle: 'ノート１のサブタイトルです',
-bodyText: 'ノート１の本文です'
-},
-textObject2 : {
-id: 2,
-title: 'ノート２のタイトルです',
-subTitle: 'ノート２のサブタイトルです',
-bodyText: 'ノート２の本文です'
-},
+const { MongoClient } = require("mongodb");
+
+// 自分のMongoDB接続URI
+const uri = "※※※";
+
+const options = {
+    serverSelectionTimeoutMS: 10000, // 10秒のタイムアウト
 };
-/**
-* メモを全件取得するAPI
-* @returns {Object[]} data
-* @returns {number} data.id - ID
-* @returns {string} data.title - タイトル
-* @returns {string} data.text - 内容
-*/
-router.get('/', function (req, res, next) {
-// 全件取得して返す
-res.json(responseObjectDataAll);
-})
-module.exports = router;
+
+async function run() {
+    const client = new MongoClient(uri, options);
+    try {
+        await client.connect(); // MongoDBに接続
+        console.log("MongoDBに接続しました。");
+
+        // PINGコマンドを実行
+        const result = await client.db().command({ ping: 1 });
+        console.log("Ping結果:", result);
+
+        const database = client.db("notes"); // データベース名を指定
+        const notes = database.collection("notes"); // コレクション名を指定
+
+        const query = [
+            {
+                id: 1,
+                title: "ノート1のタイトルです",
+                subTitle: "ノート1のサブタイトルです",
+                bodyText: "ノート1の本文です"
+            },
+            {
+                id: 2,
+                title: "ノート2のタイトルです",
+                subTitle: "ノート2のサブタイトルです",
+                bodyText: "ノート2の本文です"
+            }
+        ];
+
+        // データを挿入
+        const note = await notes.insertMany(query);
+        console.log("挿入されたノート:", note);
+    } catch (error) {
+        console.error("エラーが発生しました:", error);
+    } finally {
+        await client.close(); // MongoDBの接続を閉じる
+    }
+}
+
+run().catch(console.error);
+
