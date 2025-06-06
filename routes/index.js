@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET home page. */
+// ルートの定義
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express 2' });
+    res.send('Index Page');
 });
 
-module.exports = router;
+module.exports = router; // ルーターをエクスポート
