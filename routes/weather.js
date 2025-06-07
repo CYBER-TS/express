@@ -1,8 +1,8 @@
 const express = require('express');
 const request = require('request');
-const router = express.Router();
 const app = express();
-const port = 30177; // ポート番号を30177に変更
+const router = express.Router();
+const port = 30178; // ポート番号を30177に変更
 
 // Open-Meteo APIの設定
 const weatherUrl = 'https://api.open-meteo.com/v1/forecast?latitude=35.682839&longitude=139.759455&hourly=temperature_2m,weathercode&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=Asia/Tokyo';
@@ -94,7 +94,7 @@ const getWeatherCodeExplanation = (code) => {
 };
 
 // ルートエンドポイント
-app.get('/', (req, res) => {
+app.get('/weather', (req, res) => {
     let weatherInfo = '';
     let advice = getRandomAdvice();
     let catImage = '';
@@ -123,14 +123,11 @@ app.get('/', (req, res) => {
                 const weatherDescription = getWeatherDescription(weatherCode);
                 const weatherCodeExplanation = getWeatherCodeExplanation(weatherCode);
 
-                // ここでの条件を削除
-                const displayWeatherDescription = weatherDescription;
-
                 weatherInfo += `<tr>
                     <td>${dailyWeather.time[i]}</td>
                     <td>${maxTemp}°C</td>
                     <td>${minTemp}°C</td>
-                    <td>${displayWeatherDescription} (天気コード: ${weatherCode})</td>
+                    <td>${weatherDescription} (天気コード: ${weatherCode})</td>
                     <td>${weatherCodeExplanation}</td>
                 </tr>`;
             }
@@ -149,7 +146,7 @@ app.get('/', (req, res) => {
             }
 
             // レスポンスを送信
-res.send(`
+            res.send(`
 <html>
     <head>
         <title>東京の天気</title>
